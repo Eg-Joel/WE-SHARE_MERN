@@ -1,0 +1,27 @@
+.home{
+    background-color: aliceblue;
+    
+}
+.componentContainers{
+ 
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(194, 222, 246);
+   
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.subCop{
+    display: grid;
+    padding-left: 4rem;
+    padding-right: 4rem;
+    width: 97%;
+    border-radius: 2rem;
+    background-color: var(--glass);
+    overflow: hidden;
+    grid-template-columns: 17rem auto 17rem;
+    gap: 10px;
+}

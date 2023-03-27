@@ -1,0 +1,35 @@
+.contentcontainer{
+    width: 80%;
+    background-color: white;
+    margin: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.contentpost{
+    width: 100%;
+    margin: 10px 0;
+    height: 4vh;
+    border: none;
+}
+
+.profileImage{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.icons{
+    width: 24px;
+    height: 24px;
+    margin-left: 20px;
+    margin-top: 49px;
+}
+
+@media screen and (min-width: 600px) {
+    .contentpost{
+        width: 29pc;
+        margin: 0 10px;
+    }
+}

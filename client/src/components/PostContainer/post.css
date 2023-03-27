@@ -1,0 +1,98 @@
+
+
+
+.postContainer {
+    width: 100%;
+  }
+  
+  .subPostContainer {
+    width: 90%;
+    background-color: white;
+    margin-top: 20px;
+    margin-left: 0;
+    border-radius: 10px;
+  }
+  
+  .postProfile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-left: 10px;
+  }
+  
+  .postImage {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .LikeComments {
+    width: 20px;
+  }
+  
+  .option {
+    width: 30px;
+
+  }
+  .optt{
+    flex: auto;
+  }
+  
+  .commentbox {
+    width: 70%;
+    margin-left: 10px;
+    border: none;
+    
+  }
+  
+  .comentbtn {
+    padding: 6px 20px;
+    border: none;
+    background-color: black;
+    color: white;
+    border-radius: 6px;
+    margin-left: 5%;
+    cursor: pointer;
+  }
+  .dropt{
+   
+    position: relative;
+   
+   
+  }
+  .uldrop{
+    list-style-type: none;
+    width: 7rem;
+    padding-inline-start: 0px;
+    position: absolute;
+    box-shadow: 0px 1px 1px rgb(0, 0, 0);
+    background-color: rgb(255, 255, 255);
+    border-radius: 6px;
+    padding: 5px;
+  }
+  .lidrop{
+    cursor: pointer;
+    padding-top: 5px;
+  }
+  .linotdrop{
+    display: none;
+  }
+  .lidrop:hover{
+    color: white;
+    background-color: black;
+  }
+  @media only screen and (min-width: 768px) {
+    .subPostContainer {
+      width: 80%;
+      margin-left: 10%;
+    }
+    
+    .postImage {
+      height: 400px;
+    }
+    
+    .commentbox {
+      width: 50%;
+    }
+  }

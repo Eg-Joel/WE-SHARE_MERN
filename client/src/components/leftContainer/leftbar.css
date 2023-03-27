@@ -1,0 +1,23 @@
+.Sidebar{
+    display: flex;
+    background-color: white;
+    height: 86vh;
+     border-radius: 15px;
+    flex-direction: column;
+    position: relative;
+    padding-top: 4rem;
+    transition: all 300ms ease;
+    margin-top: 20px;
+   
+   
+}
+
+
+
+.menu{
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+}

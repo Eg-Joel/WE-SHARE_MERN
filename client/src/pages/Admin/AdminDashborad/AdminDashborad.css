@@ -1,0 +1,24 @@
+.Dashborad{
+    /* background: linear-gradient(
+        106.37deg,
+        #60c1e8 29.63%,
+        #5382e9 51.55%,
+        #a25ad5 90.85%
+    ); */
+    background-color: rgb(194, 222, 246);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.DashGlass{
+    display: grid;
+    height: 97%;
+    width: 97%;
+    border-radius: 2rem;
+    background-color: var(--glass);
+    overflow: hidden;
+    grid-template-columns: 11rem auto 20rem;
+    gap: 10px;
+}

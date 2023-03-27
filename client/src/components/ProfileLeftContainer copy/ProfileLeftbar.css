@@ -1,0 +1,38 @@
+.ProfileLeftbar{
+    flex: 1;
+}
+.notificationContainer{
+    width: 18pc;
+    height: 50vh;
+    background-color: rgb(255, 255, 255);
+    margin-top: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    overflow-y: scroll;
+}
+.notificationContainers{
+    width: 18pc;
+    height: 55vh;
+    background-color: rgb(255, 255, 255);
+    margin-top: 20px;
+    border-radius: 20px;
+  
+}
+.ProfilePageimage{
+    width: 60px;
+    border-radius: 50%;
+    height: 60px;
+    object-fit: cover;
+    margin-left: 10px;
+}
+.ProfilePagecover{
+    width: 270px;
+    height: 100px;
+    object-fit: cover;
+}
+.friendimage{
+    width: 80px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+}
