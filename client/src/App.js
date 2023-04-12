@@ -11,10 +11,12 @@ import Forgotpassword from './pages/ForgotPassword/ForgotPassword';
 import Resetpassword from './pages/ResetPassword/ResetPassword';
 import Verifyemail from './pages/VerfiyEmail/VerifyEmail';
 import AdminDashborad from './pages/Admin/AdminDashborad/AdminDashborad'
-import Chat from './pages/Chat/Chat';
 import UserMangement from './pages/Admin/AdminDashborad/UserMangement';
 import PostManagement from './pages/Admin/AdminDashborad/PostManagement';
 import Report from './pages/Admin/AdminDashborad/Report';
+import Notification from './pages/Notification/Notification';
+import Chats from './pages/chats/Chats';
+import Chating from './pages/Chating/Chating';
 
 
 function App() {
@@ -40,7 +42,11 @@ function App() {
       <Route path="/verify/email" element={user?.Status === "pending" ? <Verifyemail/> :user?.other?.verfied === true ? <Navigate to={"/"} replace={true}/> : <Login/> }></Route>
       <Route path="/forgot/password" element={<Forgotpassword/>}></Route>
       <Route path="/reset/password" element={<Resetpassword/>}></Route>
-      <Route path="chat" element={user? <Chat/> : <Navigate to={"/"} replace={true}/>}> </Route>
+      
+      <Route path="/notification" element={user? <Notification/> : <Navigate to={"/"} replace={true}/>}> </Route>
+      <Route path="/chats" element={user? <Chats/> : <Navigate to={"/"} replace={true}/>}> </Route>
+      <Route path="/chat/:id/:friendId" element={user? <Chating/> : <Navigate to={"/"} replace={true}/>}> </Route>
+
 
       <Route exact path="/admin" element={  admin ? <AdminDashborad /> :  <AdminLogin /> }></Route>
       <Route path="/users" element={  admin ? <UserMangement /> :  <AdminLogin /> }></Route>

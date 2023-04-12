@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const { body, validationResult } = require('express-validator')
-const { createUser,login, following, followerPost, updateProfile, deleteUser, userDetailPost, userToFollow, verifyEmail, forgotPassword, resetPassword, getAllUsers, getUsered, UpdateProfiles } = require('../controllers/userController')
-const { verifyToken } = require("../middlewares/verifyToken")
+const { createUser,login, following, followerPost, updateProfile, deleteUser, userDetailPost, userToFollow, verifyEmail, forgotPassword, resetPassword, getAllUsers, getUsered, UpdateProfiles, rejectReport, resolveReport, getNotifications, EditUsers, GetUsers, unFollowUser } = require('../controllers/userController')
+const { verifyToken, isAdmin } = require("../middlewares/verifyToken")
 
 
 router.post("/create/user",
@@ -25,7 +25,10 @@ router.post("/forgot/password",forgotPassword)
 router.put("/reset/password",resetPassword)
 
 //follow
-router.put("/follow/:id",verifyToken,following)
+router.put("/follow",verifyToken,following)
+
+//unfollow
+router.put("/Unfollow",verifyToken,unFollowUser)
 
 // get post from follwers
 router.get("/followerpost/:id",verifyToken,followerPost)
@@ -33,6 +36,8 @@ router.get("/followerpost/:id",verifyToken,followerPost)
 // update profile
 router.put("/update/:id",verifyToken, updateProfile)
 
+//Edit user
+router.put("/Editsprofile/:id",verifyToken,EditUsers)
 //user delete
 router.delete("/delete/:id",verifyToken,deleteUser)
 
@@ -45,6 +50,9 @@ router.get("/all/user/:id",userToFollow)
 //get all users
 router.get("/get/users",getAllUsers)
 
+//get user details
+router.get('/users/:id',verifyToken,GetUsers)
+
 //get user
 router.get("/get/usered",verifyToken,getUsered)
 
@@ -52,6 +60,13 @@ router.get("/get/usered",verifyToken,getUsered)
 router.patch('/users/:id/profile',verifyToken,UpdateProfiles)
 
 //reject report
+router.delete("/:id/report",verifyToken,isAdmin,rejectReport)
+
+//resovle report
+router.delete("/:id/rejectReport",verifyToken,isAdmin,resolveReport)
+
+//get notifications
+router.get('/notifications', verifyToken, getNotifications)
 
 
 module.exports = router

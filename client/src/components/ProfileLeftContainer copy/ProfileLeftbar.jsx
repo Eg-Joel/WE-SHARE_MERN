@@ -2,15 +2,22 @@ import React, { useEffect } from 'react'
 import "./ProfileLeftbar.css"
 import image from "../Images/Profile.png"
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import axios from 'axios'
+import { Link,useParams } from 'react-router-dom'
+import axios from "../../utils/axios"
 import { useDispatch, useSelector } from 'react-redux'
 import Modal from 'react-modal'
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import EditIcon from '@mui/icons-material/Edit';
 import app from "../../firebase"
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { updateProfile } from '../ReduxContainer/useReducer'
+import { updateProfile, updateProfiles, setUserss } from '../ReduxContainer/useReducer'
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import ChatIcon from '@mui/icons-material/Chat';
+import { useNavigate } from 'react-router-dom';
+
 const customStyles = {
   content: {
     top: '50%',
@@ -26,20 +33,21 @@ Modal.setAppElement('#root');
 
 function ProfileLeftbar() {
 
-  let location = useLocation()
-  let id = location.pathname.split("/")[2]
+  let ids = useParams()
+  let id= ids.id
+ 
+  
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.user)
-  // let user = userDetails?.user
   const [user, setUser] = useState(userDetails.user);
-
+  const navigate = useNavigate();
   useEffect(() => {
     setUser(userDetails.user);
   }, [userDetails]);
   // const [Follow, setFollow] = useState([user.other.following.includes(id) ? "Unfollow" : "Follow"]);
-  //const id = user.other._id
+  const userid = user.other._id
   // let username = user?.other?.username
-  const [Follow, setFollow] = useState("");
+   const [Follow, setFollow] = useState("");
 
   useEffect(() => {
     if (user?.other?.following.includes(id)) {
@@ -47,71 +55,82 @@ function ProfileLeftbar() {
     } else {
       setFollow("Follow");
     }
-  }, [id, user]);
+  }, [id]);
   const accesstoken = user?.accessToken
   const [users, setUsers] = useState([])
-  const { profile, username } = users;
+  const { profile, username, bio } = users;
   const [modelIsOpen, setModelIsOpen] = useState(false)
   const [modalProfile, setModalPrfile] = useState(false)
   const [imag, setImag] = useState(null)
   const [files, setFiles] = useState(null)
-  // const per = "63aea88866f7fb45b520c14c"
+  const [newName, setNewName] = useState('')
+  const [bios, setBio] = useState("")
+ 
+
   //    console.log(user.other.following.includes('641c92882561bb5eb24d9989'),"ofloof");
-  //    console.log(user.other.following);
+
   const config = {
     headers: { token: ` ${accesstoken}` }
   }
-  console.log(user,"lb");
+
   useEffect(() => {
-
     const getusers = async () => {
-
       try {
-        const res = await axios.get(`http://localhost:5000/api/user/post/user/details/${id}`)
+        const res = await axios.get(`user/post/user/details/${id}`)
         setUsers(res.data)
 
       } catch (error) {
         console.log("some error occured");
       }
     }
-
-
     getusers()
-
-
   }, [id, setUsers, users])
-
-
   let followersCounter = users?.followers?.length
   let followingCounter = users?.following?.length
-
   const [followingUser, SetFollowingUser] = useState([])
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   useEffect(() => {
     const getFollowing = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/post/following/${id}`)
-        SetFollowingUser(res.data)
-
+        const res = await axios.get(`post/following/${id}?page=${currentPage}&limit=3`, config)
+        SetFollowingUser(res.data.results)
+        setTotalPages(res.data.totalPages);
       } catch (error) {
-
+        console.log(error);
       }
     }
     getFollowing()
-  }, [id])
-  // console.log(followingUser,"following user");
+  }, [id, currentPage])
+  const handlePageChange = (page) => {
+    setCurrentPage(page + page)
+  };
 
-  const handleFollow = async () => {
-    const body = { user: id };
-    if (Follow === "Follow") {
-      // { user: `${user.other._id}` }
-      await fetch(`http://localhost:5000/api/user/follow/${id}`, { method: 'PUT', headers: { 'Content-Type': "appliction/Json", token: accesstoken }, body: JSON.stringify(body) })
-      setFollow("Unfollow");
 
-    } else {
-      await fetch(`http://localhost:5000/api/user/follow/${id}`, { method: 'PUT', headers: { 'Content-Type': "appliction/Json", token: accesstoken }, body: JSON.stringify(body) })
-      setFollow("Follow");
-    }
+const handleFollow = async (friendId)=>{
+  try {
+    const data = await axios.put(`user/follow`,{friendId},config)
+    const userDet = data.data.updatedUser
+   
+    dispatch(setUserss(  userDet ))
+    setFollow("Unfollow");
+  } catch (error) {
+    console.log(error)
   }
+}
+const handleUnFollow = async (friendId)=>{
+  try {
+    const data = await axios.put(`user/Unfollow`,{friendId},config)
+    const userDet = data.data.updatedUser
+    console.log(userDet);
+    dispatch(setUserss(  userDet ))
+    setFollow("Follow");
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
   const hanldeEditOpen = () => {
     setModelIsOpen(true)
   }
@@ -146,15 +165,15 @@ function ProfileLeftbar() {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           // Update user's profile image on the backend
           axios
-            .patch(`http://localhost:5000/api/user/users/${user?.other?._id}/profile`, { profile: downloadURL }, config)
+            .patch(`user/users/${user?.other?._id}/profile`, { profile: downloadURL }, config)
             .then((response) => {
               console.log(response.data);
-
+              const res = response.data.profile
               // Update user's profile image on the frontend
-              const updatedUser = { ...user, profile: downloadURL };
-              
-              dispatch(updateProfile(updatedUser));
-
+              // const updatedUser = { ...user, profile: downloadURL };
+              // console.log(updatedUser,"lop");
+              dispatch(updateProfile(res));
+              //  updateProfile(dispatch,{res})
               setModalPrfile(false)
             })
             .catch((error) => {
@@ -164,6 +183,42 @@ function ProfileLeftbar() {
       }
     );
   };
+
+  const handleProfileEdit = async () => {
+    // try {
+
+    let updateFields = {};
+    if (newName) {
+      updateFields.name = newName;
+    }
+    if (bios) {
+      updateFields.bio = bios;
+    }
+    const res = await axios.put(`user/Editsprofile/${userid}`, { updateFields }, config);
+    if (res.status === 200) {
+
+      dispatch(updateProfiles({ name: newName, bio: bios }));
+      console.log(res, "upo");
+      setModelIsOpen(false);
+    } else {
+
+      console.error('Failed to update profile');
+    }
+
+    // } catch (error) {
+    //   console.error(error)
+    // }
+  }
+  const createConverStation = async (friendId) => {
+
+    const { data } = await axios.post('conversation/con', { friendId }, config)
+
+    const member = data.members;
+    navigate(`/chat/${data._id}/${member[1]}`);
+
+  }
+
+
   return (
     <div className='ProfileLeftbar'>
       <div className='notificationContainers'>
@@ -189,6 +244,16 @@ function ProfileLeftbar() {
             <p style={{ marginLeft: 6, marginTop: 25, color: "black", textAlign: "start" }}>{username}</p>
             <p style={{ marginLeft: 6, color: "black", textAlign: "start", marginTop: -16, fontSize: 11 }}>user details</p>
           </div>
+          {userid !== id ? <div style={{ marginLeft: "auto", marginRight: "15px", marginTop: "5px" }}>
+
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <IconButton aria-label="message" size="small">
+                <ChatIcon onClick={() => createConverStation(id)} />
+              </IconButton>
+            </Stack>
+
+          </div> : ""}
+
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 17 }}>
           <p style={{ color: "black", marginLeft: 20, fontSize: "14px" }}>Followings</p>
@@ -201,18 +266,89 @@ function ProfileLeftbar() {
         </div>
         <div >
           <h5 style={{ color: "black", marginLeft: 10, fontSize: "14px", marginRight: 30, textAlign: "start" }}>User bio</h5>
-          <p style={{ color: "black", fontSize: "12px", textAlign: "start", marginLeft: "10px" }}>I would rather be despised of who I am, rather than loved by who I am not.</p>
+          <p style={{ color: "black", fontSize: "12px", textAlign: "start", marginLeft: "10px" }}>{bio ? bio : ` I would rather be despised of who I am, rather than loved by who I am not.`}</p>
         </div>
-        {user?.other?._id !== id ? <div onClick={handleFollow}><button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }}>{Follow}</button></div> : <div><button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }} onClick={hanldeEditOpen}>Edit Bio</button></div>}
+        {/* {user?.other?._id !== id ? <div onClick={handleFollow}><button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }}>{Follow}</button></div> : <div><button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }} onClick={hanldeEditOpen}>Edit Bio</button></div>} */}
+        {
+          user?.other?._id !== id ? (
+            Follow ==="Unfollow"   ? <button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }} onClick={() => handleUnFollow(id)}>Unfollow</button>:
+          <button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }} onClick={() => handleFollow(id)}>Follow</button>) :(
+          <div><button style={{ width: "100%", paddingTop: 7, paddingBottom: 7, border: "none", backgroundColor: "green", color: "white" }} onClick={hanldeEditOpen}>Edit Bio</button></div> )
+        }
         <Modal isOpen={modelIsOpen} onRequestClose={() => setModelIsOpen(false)} style={customStyles}>
-          <input type="text" defaultValue={username} />
-          <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} >Update</button>
-          <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} onClick={() => setModelIsOpen(false)}>cancel</button>
+          <Box
+            component="form"
+            sx={{
+              '& .MuiTextField-root': { m: 1, width: '25ch' },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <div>
+              <TextField
+                required
+                id="outlined-required"
+                label="Name"
+                defaultValue={username}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+            </div>
+
+            <div style={{ marginTop: "10px", }}>
+              <TextField
+                id="outlined-multiline-flexible"
+                label="BIO"
+                multiline
+                maxRows={4}
+                defaultValue={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
+
+            </div>
+
+            <Stack direction="row" spacing={2}>
+
+              <Button variant="contained" color="success" justifyContent="center" onClick={handleProfileEdit}>
+                Update
+              </Button>
+              <Button variant="outlined" color="error" onClick={() => setModelIsOpen(false)}>
+                cancel
+              </Button>
+            </Stack>
+          </Box>
         </Modal>
 
         {/* onChange={(e) => setNewTitle(e.target.value)}  */}
       </div>
+
       <div className='notificationContainer'>
+        <h3>Followings</h3>
+        <div style={{ display: "flex", justifyContent: 'space-between' }}>
+          <p style={{ marginLeft: 10 }}>Friends</p>
+
+
+          <p style={{ marginRight: 10, color: "#aaa", cursor: "pointer" }} onClick={() => handlePageChange(1)}>See all</p>
+        </div>
+        <div style={{ display: 'flex', flexWrap: "wrap", marginLeft: 5 }}>
+          {followingUser.map((item, index) => (
+            <Link to={ `/Profile/${item._id}` }  key={index} >
+              <div style={{ marginLeft: 4, cursor: "pointer" }}>
+                <img src={`${item.profile}`} className="friendimage" alt="" />
+                <p style={{ marginTop: -2 }}>{item.username}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="pagination">
+          {Array.from(Array(totalPages).keys()).map((page) => (
+            <div key={page} className={currentPage === page + 1 ? "active" : ""} onClick={() => handlePageChange(page + 1)}>
+              {page + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* <div className='notificationContainer'>
         <h3>Followings</h3>
         <div style={{ display: "flex", justifyContent: 'space-between' }}>
           <p style={{ marginLeft: 10 }}>Friends</p>
@@ -231,7 +367,7 @@ function ProfileLeftbar() {
 
 
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

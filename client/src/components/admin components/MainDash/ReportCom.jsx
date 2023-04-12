@@ -53,7 +53,7 @@ function ReportCom() {
         try {
             
             const response =await axios.get(`http://localhost:5000/api/post/reports/1`,config)
-           console.log(response);
+          //  console.log(response);
             const res=response.data
             
             setData(res)
@@ -78,13 +78,14 @@ function ReportCom() {
           confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            axios.delete(`http://localhost:5000/api/post/${postId}/rejectReport?id=${item}&name=${email}`,{withCredentials:true}).then((response) => {
-              //  console.log(response);
+            axios.delete(`http://localhost:5000/api/post/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
+               console.log(response,"op");
                 if (response.data) {
-                    // console.log(response);
+                    console.log(response,"pp");
                     setStatus(new Date())
                 } else {
                     setErr('Something went wrong')
+
                 }
             }).catch((err) => {
               localStorage.removeItem("user");
@@ -104,7 +105,7 @@ function ReportCom() {
           confirmButtonText: 'Yes, block'
         }).then((result) => {
           if (result.isConfirmed) {
-            axios.delete(`users/${postId}/rejectReport?id=${item}&name=${email}`,{withCredentials:true}).then((response) => {
+            axios.delete(`http://localhost:5000/api/user/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -136,7 +137,7 @@ function ReportCom() {
       }).then((result) => {
         if (result.isConfirmed) {
           if (type=="post") {
-            axios.delete(`posts/${postId}/report?id=${item}&name=${email}`,{withCredentials:true}).then((response) => {
+            axios.delete(`http://localhost:5000/api/post//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -151,7 +152,7 @@ function ReportCom() {
             })
           }else{ 
             console.log("not posts",type);
-            axios.delete(`users/${postId}/report?id=${item}&name=${email}`,{withCredentials:true}).then((response) => {
+            axios.delete(`http://localhost:5000/api/user//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -177,7 +178,7 @@ function ReportCom() {
           width: 130,
           renderCell: (params) => {
     
-            console.log(params,"params apps");
+            // console.log(params,"params apps");
             return (
              <img className="image" src={params.row.post} style={{ objectFit: "cover"}}  alt="no image" />
             );
