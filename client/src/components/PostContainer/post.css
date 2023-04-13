@@ -12,7 +12,10 @@
     margin-left: 0;
     border-radius: 10px;
   }
-  
+  .postProfi{
+    display: grid;
+    grid-template-columns: 5rem auto 5rem;
+  }
   .postProfile {
     width: 40px;
     height: 40px;

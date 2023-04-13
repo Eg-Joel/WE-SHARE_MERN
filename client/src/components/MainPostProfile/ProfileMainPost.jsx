@@ -29,7 +29,7 @@ function ProfileMainPost() {
     <div className='mainpost'>
       <div>
         <img src={`${Coverimage}`} className="profileCoverimage" alt="" />
-        <h2 style={{marginTop:-43 , color:"white" , textAlign:"start" , marginLeft:"34px"}}>Your Profile</h2>
+        <h2 style={{marginTop:-43 , color:"white" , textAlign:"start" , marginLeft:"85px"}}>Your Profile</h2>
       </div>
       {/* <Content/> */}
       {post.map((item,index)=>(

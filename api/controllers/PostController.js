@@ -1,7 +1,7 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
 const Report = require("../models/report")
-
+const Notification= require("../models/notification")
 
  
 //create post
@@ -9,10 +9,16 @@ exports.createPost = async (req,res) => {
     try {
         
         let {title, image, video} = req.body;
+        
+        if (!title.trim()) {
+          return res.status(400).json({ error: 'Please enter a title for your post' });
+        }
+        if ((image && !image.startsWith('https://')) || (video && !video.startsWith('https://'))) {
+          return res.status(400).json({ error: 'Only image and video URLs are allowed' });
+        }
         let newpost = new Post({
-            title, image, video, user:req.user.id
+          title, image, video, user:req.user.id
         })
-  
         const post = await newpost.save()
         res.status(200).json(post)
     } catch (error) {
@@ -69,13 +75,33 @@ exports.postLike = async(req,res)=>{
            
       }
       await post.updateOne({$push:{like:req.user.id}})
+      let loggedInUserId=req.user.id
       
-     
+      if(post.user.toString() !== loggedInUserId){
+        Notification.create({
+          type: "like",
+          user: post.user,
+          friend: loggedInUserId,
+          postId: post._id,
+          content: 'Liked your post'
+      })
+      
+      }
+      
       return res.status(200).json("Post has been liked")
       
     }else{
         await post.updateOne({$pull:{like:req.user.id}})
-
+        if(post.user.toString() !== loggedInUserId){
+         Notification.deleteOne({
+          type: "like",
+          user: post.user,
+          friend: loggedInUserId,
+          postId: post._id,
+          content: 'Liked your post'
+      })
+      // await Notification.deleteOne();
+    }
         return res.status(200).json("Post has been unlike")
     }
 } catch (error) {
@@ -94,6 +120,17 @@ exports.postDisLike = async(req,res)=>{
            
       }
       await post.updateOne({$push:{dislike:req.user.id}})
+      let loggedInUserId=req.user.id
+      if(post.user.toString() !== loggedInUserId){
+        Notification.deleteOne({
+         type: "like",
+         user: post.user,
+         friend: loggedInUserId,
+         postId: post._id,
+         content: 'Liked your post'
+     })
+     await Notification.deleteOne();
+   }
       return res.status(200).json("Post has been disliked")
     }else{
         await post.updateOne({$pull:{dislike:req.user.id}})
@@ -106,20 +143,47 @@ exports.postDisLike = async(req,res)=>{
 exports.comments = async(req,res)=>{
 
     try {
-        const {comment,postid} = req.body
+      
+        const {comment,postid,profile} = req.body
         const comments ={
             user:req.user.id,
             username:req.user.username,
+            profile,
             comment
         }
         const post = await Post.findById(postid)
         post.comments.push(comments)
+        const loggedInUserId=req.user.id
+        if(post.user.toString()  !== loggedInUserId){
+        const notification = new Notification({
+          type: "Comment",
+          user: post.user,
+          friend: loggedInUserId,
+          postId: post._id,
+          content: 'commented on your post'
+      })
+      await notification.save();
+    }
         await post.save()
         res.status(200).json(post)
         
     } catch (error) {
         res.status(500).json("internal error occured")  
     }
+}
+
+exports.commentDelete = async(req,res)=>{
+  try {
+    
+    const post = await Post.findById(req.params.id)
+    const commentId =req.body._id
+   
+    await post.updateOne({$pull:{comments:{_id:commentId}}})
+    const upost = await post.save()
+    res.status(200).json(upost);
+  } catch (error) {
+    res.status(500).json("err");
+  }
 }
 
 exports.deletePost = async(req,res)=>{
@@ -139,7 +203,7 @@ exports.deletePost = async(req,res)=>{
     }
 }
 exports.followingUser = async(req,res)=>{
-    //  try {
+     try {
         const user = await User.findById(req.params.id)
      
         const followinguser = await Promise.all(
@@ -152,14 +216,47 @@ exports.followingUser = async(req,res)=>{
             const {email, password , phonenumber , following, followers , ...others}=person._doc
             followingList.push(others)
         })
-        res.status(200).json(followingList)
-    //  } catch (error) {
-    //      return res.status(500).json("internal server error occured")
-    //  }
-}
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 3;
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const total = followingList.length;
+        const results = followingList.slice(startIndex, endIndex);
 
+        res.status(200).json({
+            results: results,
+            page: page,
+            totalPages: Math.ceil(total / limit)
+        });
+        // res.status(200).json(followingList)
+     } catch (error) {
+         return res.status(500).json("internal server error occured")
+     }
+    }
+
+    exports.followingUsers = async(req,res)=>{
+      try {
+       
+         const user = await User.findById(req.params.id)
+      
+         const followinguser = await Promise.all(
+             user.following.map((item)=>{
+                 return User.findById(item)
+             })
+         )
+         let followingList =[]
+         followinguser.map((person)=>{
+             const {email, password , phonenumber , following, followers , ...others}=person._doc
+             followingList.push(others)
+         })
+     
+         res.status(200).json(followingList)
+      } catch (error) {
+          return res.status(500).json("internal server error occured")
+      }
+     }
 exports.followers = async(req,res)=>{
-    // try {
+    try {
       
        const user = await User.findById(req.params.id)
   
@@ -174,11 +271,31 @@ exports.followers = async(req,res)=>{
            followersList.push(others)
        })
        res.status(200).json(followersList)
-    // } catch (error) {
-    //     return res.status(500).json("internal server error occured")
-    // }
+    } catch (error) {
+        return res.status(500).json("internal server error occured")
+    }
 }
+exports.LikedUsers = async (req,res)=>{
+  
+  try {
+    const post = await Post.findById(req.params.id)
 
+    const likedUsers = await Promise.all(
+          post.like.map((item)=>{
+            return User.findById(item)
+          })
+      )
+    let likedList = []
+    
+    likedUsers.map((person)=>{
+        const {email, password , phonenumber , following, followers ,...other}=person._doc
+        likedList.push(other)
+      })
+   res.status(200).json(likedList)
+  } catch (error) {
+    return res.status(500).json("internal server error occured")
+  }
+}
 exports.reportPost=async (req, res) => {
     try {
      
@@ -255,7 +372,8 @@ exports.resolveReport=async (req, res) => {
       isPostFound = false
     }
     if (post.user === req.user.id || req.user.isAdmin) {
-      await post.deleteOne()
+      post.isDeleted = true;
+      await post.save();
       await Report.deleteMany({_id:req.query.id})
       res.status(200).json("post deleted");
     } else {

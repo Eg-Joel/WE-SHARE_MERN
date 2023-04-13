@@ -5,18 +5,22 @@
   }
   
   .subPostContainer {
-    width: 100%;
+    width: 90%;
     background-color: white;
     margin-top: 20px;
     margin-left: 0;
     border-radius: 10px;
+    padding: 10px;
   }
-  
+  .postProfi{
+    display: grid;
+    grid-template-columns: 5rem auto 5rem;
+  }
   .postProfile {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    margin-left: 10px;
+    margin-left: 14px;
   }
   
   .postImage {

@@ -1,26 +1,40 @@
-import React, { useEffect } from 'react'
+import React, { useEffect,useRef } from 'react'
 import "./rightbar.css"
-
+import io from "socket.io-client"
 import image2 from "../Images/image2.jpg"
 
 import { useState } from 'react'
 import axios from 'axios'
 import Follow from './Follow'
 import { useSelector } from 'react-redux'
+import ChatOnline from '../ChatOnline/ChatOnline'
 
 function Rightbar() {
   const userDetails =useSelector((state)=>state.user)
   let user = userDetails.user
   let id = user?.other?._id
   const [users, setUsers] = useState([])
+  const [onlineUsers, setOnlineUsers] = useState([])
+  const socket = useRef()
   
+  
+
+
+  useEffect(()=>{
+    socket.current = io("ws://localhost:8900")
+    
+   },[])
+ 
   useEffect  (() => {
    
     const getuser = async()=>{
     
      try {
        const res = await axios.get(`http://localhost:5000/api/user/all/user/${id}`)
-       setUsers(res.data)
+       const filteredData = res.data.filter(user => user._id !== id);
+       
+      setUsers(filteredData)
+     
        
      } catch (error) {
        console.log("some error occured");
@@ -29,57 +43,32 @@ function Rightbar() {
     
     getuser()
    }, [])
- 
+   useEffect(()=>{
+    socket.current.emit("addUser",id)
+    socket.current.on("getUsers",(users)=>{
+      const onlineFriends = user?.other?.following?.filter((f) =>
+      users.some((u) => u.userId === f)
+    );
+    setOnlineUsers(onlineFriends);
+    
+    })
+  },[id])
+  
   return (
     <div className='rightbar'>
       <div className='rightcontainer'>
-      <h3 style={{ marginLeft: "10px" ,textAlign:"start"}}>friends online</h3>
-        <div style={{marginTop:"-10px"}}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-
-
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img src={`${image2}`} className="profileImage" alt="" />
-              <div>
-                <p style={{ marginLeft: "10px" ,textAlign:"start"}}>user </p>
-                
-              </div>
-            </div>
+      <h4 style={{ marginTop:"25px" ,textAlign:"start",marginLeft:"66px"}}>Friends Online</h4>
+      {onlineUsers.length > 0 ? <ChatOnline 
+            onlineUsers={onlineUsers} 
+            currentUser={id}
+            
            
-          </div>
-        </div>
-        <div style={{marginTop:"-10px"}}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-
-
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img src={`${image2}`} className="profileImage" alt="" />
-              <div>
-                <p style={{ marginLeft: "10px" ,textAlign:"start"}}>user</p>
-                
-              </div>
-            </div>
-           
-          </div>
-        </div>
-        <div style={{marginTop:"-10px"}}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-
-
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img src={`${image2}`} className="profileImage" alt="" />
-              <div>
-                <p style={{ marginLeft: "10px" ,textAlign:"start"}}>user</p>
-                
-              </div>
-            </div>
-           
-          </div>
-        </div>
+            />  :
+       <p style={{ marginLeft: "100px" ,textAlign:"start",marginTop:"100px",}}>no friends Online</p>}
       </div>
 
       <div className='rightcontainer2'>
-        <h3 style={{ marginLeft: "10px" ,textAlign:"start"}}>Suggested for you  </h3>
+        <h4 style={{ marginLeft: "40px" ,textAlign:"start",marginBottom:"30px"}}>Suggested for you  </h4>
         {users.map((item,index)=>(
           
        <Follow userdetails={item} key={index}/>

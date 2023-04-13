@@ -23,9 +23,16 @@ const UserSchema = new mongoose.Schema({
         type:Array,
        
     },
+    bio: {
+        type: String,
+    },
     following:{
         type:Array,
        
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     },
     profile:{
         type:String,

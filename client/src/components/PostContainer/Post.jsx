@@ -5,7 +5,6 @@ import Likebtn from "../Images/like.png"
 import Likedbtn from "../Images/setLike.png"
 import commentBtn from "../Images/speech-bubble.png"
 import optionIcon from "../Images/more.png"
-import axios from 'axios'
 import { useSelector } from 'react-redux'
 import ReactTimeAgo from 'react-time-ago'
 import Modal from 'react-modal'
@@ -22,6 +21,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import Swal from 'sweetalert2'
+import axios from '../../utils/axios'
+import * as timeago from 'timeago.js';
 const customStyles = {
   content: {
     top: '50%',
@@ -52,7 +53,7 @@ function Post({ post }) {
   useEffect(() => {
     const getuser = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/user/post/user/details/${post.user}`)
+        const res = await axios.get(`user/post/user/details/${post.user}`)
         setUser(res.data)
       } catch (error) {
         console.log("some error occured");
@@ -61,6 +62,7 @@ function Post({ post }) {
     getuser()
   }, [])
 
+
   const userId = currentUser?.other?._id;
   const accesstoken = currentUser.accessToken
   const [Like, setLike] = useState(post.like.includes(userId) ? Likedbtn : Likebtn)
@@ -68,6 +70,7 @@ function Post({ post }) {
   const [Comments, SetComments] = useState(post.comments)
   const [Commentadded, setCommentadded] = useState('')
   const [Show, setShow] = useState(false)
+  const [shows, setShows] = useState(false)
   const [modelIsOpen, setModelIsOpen] = useState(false)
   const [modelReportOpen, setModelReportOpen] = useState(false)
   const [newTitle, setNewTitle] = useState("")
@@ -76,7 +79,8 @@ function Post({ post }) {
   const [err, setErr] = useState(null)
   const [desc, setDesc] = useState(null)
   const [isDeleted, setIsDeleted] = useState(false);
-
+  const sortedComments = [...Comments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+ 
   let subtitle;
   const token =accesstoken
  
@@ -99,6 +103,18 @@ function Post({ post }) {
     }
   }
 
+  const [likedUsers,SetLikedUsers] = useState([])
+    useEffect(() => {
+      const getLikedUsres = async()=>{
+        try {
+            const res =await axios.get(`post/likedUsers/${post._id}`,config)
+            SetLikedUsers(res.data)
+        } catch (error) {
+            
+        }
+      }
+      getLikedUsres()
+    }, [])
   // const addCommeent = async() => { 
   //   const comment = {
   //     "postid": `${post._id}`,
@@ -108,6 +124,7 @@ function Post({ post }) {
 
   //   }
   const addCommeent = async () => {
+   
     if (Commentadded.trim() !== '') {
       const comment = {
         "postid": `${post._id}`,
@@ -123,10 +140,12 @@ function Post({ post }) {
       // console.log(currentUser.other?.profile,"jjij");
 
       await fetch(`http://localhost:5000/api/post/comment/post`, { method: "PUT", headers: { 'Content-Type': 'application/Json', token: accesstoken }, body: JSON.stringify(comment) })
-      SetComments(Comments.concat(comment))
+      
+     
       SetComments(updatedComments);
 
       toast.success('comment added')
+     
     } else {
       toast.warning('wirte any thing')
     }
@@ -135,6 +154,7 @@ function Post({ post }) {
 
   const handleComment = () => {
     addCommeent()
+    setCommentadded('');
   }
 
 
@@ -143,6 +163,15 @@ function Post({ post }) {
       setShow(true)
     } else {
       setShow(false)
+    }
+  }
+
+  const handleLikeShow= ()=>{
+    if(shows === false){
+      setShows(true)
+
+    }else{
+      setShows(false)
     }
   }
   const hanldeEditOpen = () => {
@@ -202,7 +231,7 @@ function Post({ post }) {
 
     toast.success('Post Edited')
     } catch (error) {
-      
+      console.error(error)
     }
     
 
@@ -211,7 +240,7 @@ function Post({ post }) {
     // e.preventDefault()
     if (report=="other"&&desc.trim().length!==0&&desc!=null) {
       console.log("Entry test");
-      axios.put(`http://localhost:5000/api/post/${post._id}/report`, { reason:desc },config).then((res) => {
+      axios.put(`post/${post._id}/report`, { reason:desc },config).then((res) => {
         console.log(res);
         Swal.fire({
           title: 'Reported!',
@@ -227,7 +256,7 @@ function Post({ post }) {
         setErr(err.response.data)
       })
     } else if(report!=="other") {
-      axios.put(`http://localhost:5000/api/post/${post._id}/report`, { reason:report },config).then((res) => {
+      axios.put(`post/${post._id}/report`, { reason:report },config).then((res) => {
         Swal.fire({
           title: 'Reported!',
           text: 'Thanks for reporting',
@@ -250,17 +279,40 @@ function Post({ post }) {
   if (isDeleted) {
     return null;
   }
+const handleDeleteComment = (_id)=>{
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      axios.put(`post/${post._id}/deleteComment`,{_id},config).then((res)=>{
+        console.log(res,"lo");
+        toast.success('Post Deleted')
+        const newComments = Comments.filter(comment => comment._id !== _id);
+        SetComments(newComments);
+      }).catch((err)=>{console.log(err);})
+    }
+  })
+
+}
+// console.log(Comments);
   return (
     <div className='postContainer'>
       <div className='subPostContainer'>
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div className='postProfi' >
           <div>
             {user.profile == "" ? <img src={`${profileImage}`} className="postProfile" alt="" /> : <img src={`${user.profile}`} className="postProfile" alt="" />}
 
           </div>
 
           <div className='optt'>
-            <p style={{ marginLeft: "5px", textAlign: "start",marginTop:"3px",  }}>{user.username}</p>
+            <p style={{ marginLeft: "5px", textAlign: "start",marginTop:"3px",marginBottom:"0"  }}>{user.username}</p>
 
             <p style={{ marginLeft: "5px", textAlign: "start", color: "gray",marginBottom:"0" }}><ReactTimeAgo date={Date.parse(post.createdAt)} locale="en-US" /> </p>
 
@@ -338,7 +390,7 @@ function Post({ post }) {
           </Modal>
 
         </div>
-        <p style={{ textAlign: "start", width: "96%", marginLeft: 10, marginTop: 0 }}>{posts.title} </p>
+        <p style={{ textAlign: "start", width: "96%", marginLeft: 10, marginTop: "5px" }}>{posts.title} </p>
         {post.image !== "" ?
           <img src={`${post.image}`} className="postImage" alt="" /> : post.video !== '' ? <video width="80%" height="400" className="postImage" controls>
             <source src={`${post.video}`} type="video/mp4" />
@@ -347,42 +399,61 @@ function Post({ post }) {
 
 
         <div style={{ display: "flex" }}>
-          <div style={{ display: 'flex', marginLeft: '10px', marginTop:"10px",marginBottom:"10px"  }}>
+          <div style={{ display: 'flex', marginLeft: '10px', marginTop:"5px",  }}>
             <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
 
               <img src={`${Like}`} className="LikeComments" onClick={handleLike} alt="" />
               {/* <p style={{ marginLeft: "6px" }}>{ Count} Likes</p> */}
-              {Count > 0 && <p style={{ marginLeft: "6px" }}>{Count} Likes</p>}
+              {Count > 0 && <span style={{ marginLeft: "6px" }} onClick={handleLikeShow}>{Count} Likes</span>}
             </div>
 
             <div style={{ display: "flex", alignItems: "center", marginLeft: 20, cursor: "pointer" }}>
               <img src={`${commentBtn}`} className="LikeComments" onClick={handleShow} alt="" />
               {/* <p style={{ marginLeft: "6px" }}>{Comments.length}Comments</p> */}
-              {Comments.length > 0 && <p style={{ marginLeft: "6px" }}>{Comments.length} Comments</p>}
+              {Comments.length > 0 && <span style={{ marginLeft: "6px" }}>{Comments.length} Comments</span>}
             </div>
           </div>
           {/*{post.Comments.length} */}
         </div>
+        {
+          shows === true ? 
+          <div style={{ padding: "10px" }}>
+            
+            {likedUsers.map((items, index) => (
+              <div style={{ alignItems: "center" }} key={index}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <img src={`${items.profile}`} className="postProfile" alt="" />
+                  <p style={{ marginLeft: "6px", marginTop: 7, fontSize: 18 }}> {items.username}</p>
+                 
+                 
+                </div>
+              </div>
+            ))}
+          </div> : ""
+        }
         {Show === true ?
           <div style={{ padding: "10px" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <img src={`${currentUser?.other?.profile}`} className="postProfile" alt="" />
               {/* <p style={{marginLeft:"6px"}}> user</p> */}
-              <input type="text" className='commentbox' placeholder='Add a comment' onChange={(e) => setCommentadded(e.target.value)} />
+              <input type="text" className='commentbox' placeholder='Add a comment' onChange={(e) => setCommentadded(e.target.value)} value={Commentadded} />
               <button className='comentbtn' onClick={handleComment}>Post</button>
               <ToastContainer />
 
             </div>
-            {Comments.map((items, index) => (
+            {sortedComments.map((items, index) => (
               <div style={{ alignItems: "center" }} key={index}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <img src={`${items.profile}`} className="postProfile" alt="" />
                   <p style={{ marginLeft: "6px", marginTop: 7, fontSize: 18 }}> {items.username}</p>
+                 
+                  <p style={{ marginLeft: "5px", textAlign: "start", color: "gray" ,marginTop: -7, fontSize: 12 ,marginBottom:"0" }}>{timeago.format(items?.createdAt)} </p>
                 </div>
-                {console.log(items.comment, "fgf")}
+               
 
                 <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16 }}>{items.comment}</p>
-                <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16, color: "#aaa", fontSize: 12 }}>Reply</p>
+
+           { userId === items.user ?  <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16, color: "#aaa", fontSize: 12,cursor:"pointer" }} onClick={()=>{handleDeleteComment(items._id)}}>Delete</p>: ""}
               </div>
             ))}
           </div> : ""

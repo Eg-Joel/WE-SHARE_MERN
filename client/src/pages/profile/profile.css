@@ -1,10 +1,29 @@
 .profileContainer{
     background-color: aliceblue;
-    
+   display: block;
 }
+
 .subProfileContainer{
-    width: 90%;
+   
     margin: auto;
-    display: flex;
+    display: flex ;
     justify-content: space-between;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(194, 222, 246);
+
+   
+}
+
+.subCop{
+    display: grid;
+    padding-left: 4rem;
+    padding-right: 4rem;
+    width: 97%;
+    border-radius: 2rem;
+    background-color: var(--glass);
+    overflow: hidden;
+    grid-template-columns: 17rem auto 17rem;
+    gap: 20px;
 }

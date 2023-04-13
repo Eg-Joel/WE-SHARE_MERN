@@ -2,16 +2,26 @@ import axios from "axios"
 import { loginStart,loginSucces,loginFailure,logout } from "./useReducer"
 import { AdminloginStart,AdminloginSucces,AdminloginFailure,Adminlogout } from "./adminReducer"
 
+
 export const login = async(dispatch, user)=>{
+ 
     dispatch(loginStart())
+    
     try {
         const res = await axios.post('http://localhost:5000/api/user/login',user)
-    
+    console.log(res,"api");
         dispatch(loginSucces(res.data))
-        
+       
+    
     } catch (error) {
-        dispatch(loginFailure())
+      console.log(error,"p");
+      if ( error.response.data.msg ) {
+        
+        dispatch(loginFailure(error.response.data.msg))
+    } else {
+        dispatch(loginFailure("An error occurred while logging in. Please try again later."))
     }
+     }
 }
 
 export const Adminlogin = async (dispatch, admin) => {

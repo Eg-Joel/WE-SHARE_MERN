@@ -14,6 +14,7 @@ function Content() {
 
   const userDetails = useSelector((state)=>state.user);
   let user = userDetails?.user
+  
   let id = user?.other?._id;
   const [File , setFile] = useState(null) 
   const [File2,setFile2] = useState(null)
@@ -25,6 +26,14 @@ function Content() {
 
   const handlePost = (e)=>{
     e.preventDefault()
+    if (!title.trim()) {
+      toast.error('Please enter a title for your post')
+      return;
+    }
+    if ((File && File.type.split('/')[0] !== 'image') || (File2 && File2.type.split('/')[0] !== 'video')) {
+      toast.error('Please upload either an image or a video file')
+      return;
+    }
     if( File !== null) 
     {
     const fileName = new Date().getTime()+ File?.name
@@ -103,6 +112,7 @@ function Content() {
         window.location.reload(true)
       }) 
     }
+    
   }
   return (
     <div>
@@ -119,7 +129,7 @@ function Content() {
           }
            <ToastContainer />
           <div style={{display:"flex",justifyContent:'space-between'}}>
-          <div>
+          <div >
             <label htmlFor='file'>
             <img src={`${imageIcon}`} className="icons" alt="" />
             <input type="file" name='file' id='file' style={{display:'none'}} accept="image/png,image/jpeg,image/jpg,image/gif" onChange={(e)=>[setFile(e.target.files[0]),setImagePre(URL.createObjectURL(e.target.files[0]))]} />
@@ -131,9 +141,9 @@ function Content() {
           <img src={`${videoIcon}`} className="icons" alt="" />
             <input type="file" name='file2' id='file2' style={{display:'none'}} accept="video/*" onChange={(e)=>[setFile2(e.target.files[0]),setVideoPre(URL.createObjectURL(e.target.files[0]))]}/>
             </label>
-        
-          <button style={{height:"27px" ,marginBottom:"5px",marginLeft:"30rem ",paddingLeft:"20px" , paddingRight:"20px" , border:"none" , backgroundColor:"black" , color:"white" , borderRadius:"5px" , cursor:"pointer"}} onClick={handlePost}>Post</button>
-          </div>
+            </div>
+          <button style={{height:"27px" ,marginBottom:"5px",paddingLeft:"20px" , paddingRight:"20px" , border:"none" , backgroundColor:"black" , color:"white" , borderRadius:"5px" , cursor:"pointer",marginTop:"50px",marginRight:"10px"}} onClick={handlePost}>Post</button>
+         
           </div>
         </div>
 

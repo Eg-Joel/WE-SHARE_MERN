@@ -10,15 +10,17 @@ import "./profile.css"
 function Profile() {
   const userDetails =useSelector((state)=>state.user)
   let user = userDetails.user
-  console.log(user);
+ 
   return (
+    
     <div className='profileContainer'>
       <Navbar />
       <div className='subProfileContainer'>
-       
+      <div className='subCop'>
           <ProfileLeftbar/>
           <ProfileMainPost/>
           <ProfileRightbar/>
+          </div>
       </div>
     </div>
   )

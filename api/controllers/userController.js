@@ -3,7 +3,7 @@ const { validate } = require("../models/User")
 const User = require("../models/User")
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { post } = require("../router/user");
+const Notification=require('../models/notification')
 const jwtSEC = "#2idfbfb$%TTtrr123##"
 const Post = require("../models/Post");
 const VerificationToken=require("../models/verificationToken")
@@ -11,8 +11,8 @@ const ResetToken = require("../models/ResetToken")
 const { generateOTP } = require("../router/otp/mail");
 const nodemailer = require('nodemailer')
 const crypto = require("crypto");
-const { log } = require("console");
-const { async } = require("@firebase/util");
+
+
 
 
 exports.createUser =async (req,res)=>{
@@ -24,7 +24,7 @@ exports.createUser =async (req,res)=>{
      
     let user = await User.findOne({email:req.body.email});
     if(user){
-        return res.status(200).json("Please login with correct password")
+        return res.status(200).json({msg:"Please login with correct password"})
     };
     let password = req.body.password
    
@@ -77,14 +77,14 @@ exports.createUser =async (req,res)=>{
 exports.verifyEmail = async (req,res)=>{
     const {user, OTP} = req.body
     const mainUser = await User.findById(user)
-    if(!mainUser)return res.status(400).json("User not found")
+    if(!mainUser)return res.status(400).json({msg:"User not found"})
     if(mainUser.verfied === true){
-        return res.status(400).json("user already verfied")
+        return res.status(400).json({msg:"user already verfied"})
         
     }
     const token = await VerificationToken.findOne({user:mainUser._id})
     if(!token){
-        return res.status(400).json("sorry token not found")
+        return res.status(400).json({msg:"sorry token not found"})
     }
     const isMatch =await bcrypt.compareSync(OTP, token.token)
     if(!isMatch){return res.status(400).json("Token is not vaild")}
@@ -125,17 +125,14 @@ exports.login = async(req,res)=>{
     
     const user = await User.findOne({email:req.body.email})
     if(!user){
-        return res.status(400).json("user not found")
+        return res.status(400).json({msg:"user not found"})
     }
     if (user.isBanned){
-        return res.json({
-          status: false,
-          message: "you are banned to login",
-        });
+        return res.status(400).json({ msg: "you are banned to login"});
       }
     const ComparePassword = await bcrypt.compare(req.body.password,user.password)
     if(!ComparePassword){
-        return res.status(400).json("Password error")
+        return res.status(400).json({msg:"Password error"})
     }
     
     const accessToken = jwt.sign({
@@ -232,27 +229,124 @@ exports.resetPassword = async(req,res)=>{
 }
 
 exports.following = async(req,res)=>{
-    if(req.params.id !== req.user.id){
-       
+    try {
         
-        const user = await User.findById(req.params.id)
-        const otheruser = await User.findById(req.user.id)
-       
-
-        if(!user.followers.includes(req.user.id)){
-            await user.updateOne({$push:{followers:req.user.id}})
-            await otheruser.updateOne({$push:{following:req.params.id}})
-            return res.status(200).json("user has followed")
-
-        }else{
-            await user.updateOne({$pull:{followers:req.user.id}})
-            await otheruser.updateOne({$pull:{following:req.params.id}})
-            return res.status(200).json("user has unfollowed")
+        const id = req.user.id
+        const friendId = req.body.friendId
+     
+        const friend = await  User.findById(friendId)
+        if (!friend) {
+            return res.status(400).json({ msg: "User does not exist" })
         }
-    }else{
-        return res.status(400).json("you can't follow yourself")
+        
+        if (!friend.followers.includes(id)) { // Check if userId is not already in followers
+            friend.followers.push(id);
+            await friend.save();
+            await Notification.create({
+                type: "follow",
+                user: friendId,
+                friend: id,
+                content: 'Started Following You'
+            })
+            
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(400).json({ msg: "User does not exist" })
+        }
+        if (!user.following.includes(friendId)) { // Check if userIdToFollow is not already in following
+            user.following.push(friendId);
+            await user.save();
+        }
+        const updatedUser = await User.findById(id);
+        // const sugesstions = await User.find({ _id: { $nin: [...updatedUser.followings, id] } });
+        res.status(200).json({updatedUser });
+    } catch (error) {
+        res.status(500).json(error)
     }
 }
+
+exports.unFollowUser = async (req, res) => {
+    try {
+        const id  = req.user.id;
+        const friendId = req.body.friendId;
+   
+        const friend = await User.findById(friendId);
+        if (!friend) {
+           
+            return res.status(400).json({ msg: "User does not exist" })
+        }
+        if (friend.followers.includes(id)) { // Check if userId is already in followers
+           
+            const index = friend.followers.indexOf(id);
+            
+            friend.followers.splice(index, 1); // Remove it from the array
+            await friend.save();
+            await Notification.deleteOne({
+                type: "follow",
+                user: friendId,
+                friend: id,
+                content: 'Started Following You'
+            })
+        
+        }
+        
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(400).json({ msg: "User does not exist" })
+        }
+        if (user.following.includes(friendId)) { // Check if userIdToUnFollow is already in following
+            const index = user.following.indexOf(friendId);
+            user.following.splice(index, 1); // Remove it from the array
+            await user.save();
+          
+        }
+        const updatedUser = await User.findById(id);
+        // const sugesstions = await User.find({ _id: { $nin: [...updatedUser.followings, id] } });
+        res.status(200).json({ updatedUser});
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
+
+// exports.following = async(req,res)=>{
+//     if(req.params.id !== req.user.id){
+       
+//         try {
+//         const user = await User.findById(req.params.id)
+//         const otheruser = await User.findById(req.user.id)
+       
+
+//         if(!user.followers.includes(req.user.id)){
+//             await user.updateOne({$push:{followers:req.user.id}})
+//             await otheruser.updateOne({$push:{following:req.params.id}})
+//             await Notification.create({
+//                 type: "follow",
+//                 user: req.user.id,
+//                 friend: req.params.id,
+//                 content: 'Started Following You'
+//             })
+//           let updateUser = await otheruser.save()
+       
+//             return res.status(200).json(updateUser)
+
+//         }else{
+//             await user.updateOne({$pull:{followers:req.user.id}})
+//             await otheruser.updateOne({$pull:{following:req.params.id}})
+//             let updateUser =await otheruser.save()
+           
+//             return res.status(200).json(updateUser)
+//         }
+//     }catch (err) {
+//         console.log(err);
+//         return res.status(500).json({ error: "Server error" });
+//       }
+//     }
+//     else{
+//         return res.status(400).json("you can't follow yourself")
+//     }
+// }
 exports.followerPost = async(req,res)=>{
     try {
         
@@ -271,13 +365,15 @@ exports.followerPost = async(req,res)=>{
         const userPost = await Post.find({user:user._id,isDeleted : false})
         
         const allPosts = userPost.concat(...followerspost)
-        allPosts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)) // sort by date
+        allPosts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)) 
         
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const results = allPosts.slice(startIndex, endIndex);
-
-        res.status(200).json({ posts: results, totalPages: Math.ceil(allPosts.length / limit) })
+        const count = await Post.countDocuments({ user: user._id, isDeleted: false });
+        const totalPages = Math.ceil((count + followerspost.length) / limit);
+        
+        res.status(200).json({ posts: results, totalPages: totalPages })
     } catch (error) {
         return res.status(500).json("internal server error occured")
     }
@@ -333,7 +429,16 @@ exports.userDetailPost =async(req,res)=>{
     }
 }
 
+exports.GetUsers = async(req,res)=>{
+    try {
+        const userId = req.params.id
 
+        const user = await User.findById(userId)
+        res.status(200).json(user)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+}
 
 exports.userToFollow = async(req,res)=>{
     try {
@@ -387,7 +492,7 @@ exports.getUsered =async(req,res)=>{
 }
 
 exports.UpdateProfiles =async (req,res)=>{
-    // try {
+    try {
         
         const user = await User.findById(req.params.id)
        
@@ -396,11 +501,93 @@ exports.UpdateProfiles =async (req,res)=>{
           }
           user.set(req.body)// update user's profile image path
           const updateUser=await user.save();
+      
           res.send(updateUser);
 
           
-    // } catch (error) {
-    //     console.error(error);
-    // res.status(500).send('Internal server error');
-    // }
+    } catch (error) {
+        console.error(error);
+    res.status(500).send('Internal server error');
+    }
+}
+
+exports.EditUsers = async (req,res)=>{
+
+    try {
+        let userId = req.params.id
+       
+        let updateFields = req.body.updateFields;
+       
+          console.log(updateFields,"up");
+        const user = await User.findByIdAndUpdate(userId,updateFields  , { new: true }  );
+    
+        
+          res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+}
+exports.rejectReport=async (req, res) => {
+    try {
+      console.log(req.query.name,"test");
+      var isPostFound=true
+      const user = await User.findById(req.params.id);
+  
+      // const report = await Report.findById(req.query.id)
+      if (!user) {
+        res.status(403).json("user not found");
+        isPostFound = false
+      }
+      if (req.user.isAdmin) {
+        await user.updateOne({ $pull: { reports: req.query.name} })
+        await Report.deleteMany({_id:req.query.id})
+        res.status(200).json("report removed");
+      } else {
+        res.status(403).json("authorization failed");
+      }
+    } catch (err) {
+      if (isPostFound) {
+        res.status(500).json(err);
+      }
+      console.log(err);
+    }
+  }
+
+  exports.resolveReport=async (req, res) => {
+    try {
+      var isPostFound=true
+      const user = await User.findById(req.params.id);
+      // const report = await Report.findById(req.query.id)
+      if (!user) {
+        res.status(403).json("user not found");
+        isPostFound = false
+      }
+      if (req.user.isAdmin) {
+        await user.updateOne({ isBanned:true})
+        await Report.deleteMany({_id:req.query.id})
+        res.status(200).json("report resolved");
+      } else {
+        res.status(403).json("authorization failed");
+      }
+    } catch (err) {
+      if (isPostFound) {
+        res.status(500).json(err);
+      }
+      console.log(err);
+    }
+  }
+
+  exports.getNotifications = async (req, res)=>{
+    try {
+        const { id } = req.user;
+        const notifiactions = await Notification.find({ user: id })
+            .populate('friend', 'username profile')
+            .populate('postId', 'image')
+            .sort({ createdAt: -1 })
+            .exec();
+        res.status(200).json(notifiactions);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
+    }
 }

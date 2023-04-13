@@ -4,10 +4,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import "./login.css"
 import { useState } from 'react'
 import { login } from '../../components/ReduxContainer/apicall'
+import { ToastContainer, toast } from 'react-toastify';
 
 function Login() {
   const dispatch = useDispatch()
-  // const {isFetching, error} =useSelector((state)=>state.user)
+  const userDetails =useSelector((state)=>state.user)
   const [email , setEmail]=useState('')
   const [password,setPassword] = useState('')
 
@@ -41,9 +42,12 @@ function Login() {
   const handleClick = (e)=>{
     e.preventDefault()
     if(!validateEmail()||!validatePassword()) return ;
-    login(dispatch ,{email , password})
-    
+        login(dispatch ,{email , password})
+        if (userDetails.error) {
+          toast.warning(userDetails.error);
+       }  
   }
+  
   return (
     <div className='signupContainer'>
         <div className='subSignupContainer'>
@@ -55,11 +59,11 @@ function Login() {
               <p className='createaccount'>Login Account</p>
               
               <input type="email" placeholder='Email' id='email' onChange={(e)=>setEmail(e.target.value)} className='inputText' />
-              {emailErr && <div style={{color:"white"}}> {emailErr}</div>}
-
+              {emailErr && <div style={{color:"white"}} className='inputText'> {emailErr}</div>}
+              <ToastContainer />
               <input type="password" id='password' placeholder='******' onChange={(e)=>setPassword(e.target.value)} className='inputText'/>
-              {passwordErr && <div style={{color:"white"}}> {passwordErr}</div>} 
-
+              {passwordErr && <div style={{color:"white"}} className='inputText'> {passwordErr}</div>} 
+             
               <button className='signupbtn' onClick={handleClick}>Login</button>
               <Link to={"/forgot/password"}>
           <p style={{textAlign:'start' , marginLeft:"30.6%",color:"white" }}>Forgot password</p>

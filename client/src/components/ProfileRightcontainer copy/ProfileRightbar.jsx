@@ -13,12 +13,15 @@ function ProfileRightbar() {
   let location = useLocation()
   let id = location.pathname.split("/")[2]
   let idSuggest = user?.other?._id
-
+  const accesstoken = user?.accessToken
+  const config = {
+    headers: { token: ` ${accesstoken}` }
+  }
   const [followingUser,SetFollowingUser] = useState([])
     useEffect(() => {
       const getFollowing = async()=>{
         try {
-            const res =await axios.get(`http://localhost:5000/api/post/followers/${id}`)
+            const res =await axios.get(`http://localhost:5000/api/post/followers/${id}`,config)
             SetFollowingUser(res.data)
         } catch (error) {
             
@@ -35,7 +38,10 @@ function ProfileRightbar() {
     
      try {
        const res = await axios.get(`http://localhost:5000/api/user/all/user/${idSuggest}`)
-       setUsers(res.data)
+       const filteredData = res.data.filter(user => user._id !== id);
+       
+      setUsers(filteredData)
+     
        
      } catch (error) {
        console.log("some error occured");

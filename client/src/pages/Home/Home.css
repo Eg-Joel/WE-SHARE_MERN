@@ -25,3 +25,12 @@
     grid-template-columns: 17rem auto 17rem;
     gap: 10px;
 }
+@media only screen and (max-width:785px) {
+    .subCop .RightBars {
+      display: none;
+      
+    }
+   .subCop .chatboxsss{
+    width: 92vh;
+   }
+  }
