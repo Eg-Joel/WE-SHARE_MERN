@@ -1,4 +1,4 @@
-.Sidebar{
+.Sidebars{
     display: flex;
     background-color: white;
     height: 86vh;
@@ -7,25 +7,25 @@
     position: relative;
     padding-top: 4rem;
     transition: all 300ms ease;
-    margin-top: 20px;
+   
    
    
 }
 
 
-.menuItems{
+.menuItemsl{
     display: flex;
     align-items: center;
     
     gap: 1rem;
-    height: 2.5rem;
+    height: 3.5rem;
     margin-left: 2rem;
     position: relative;
     transition: all 300ms ease;
-    font-size: 14px;
+    font-size: 25px;
     border-radius: 0.7rem;
 }
-.menuItems:hover{
+.menuItemsl:hover{
     cursor: pointer;
     
 }
@@ -40,17 +40,52 @@
     background: var(--darkactive);
     margin-right: calc(1rem- 8px);
 }
-.menu .menuItems:last-child{
+.menu .menuItemsl:last-child{
     position: absolute;
     bottom: 2.3rem;
 }
 
-.menu{
-    margin-top: 4rem;
+.menul{
+    margin-top: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem;
     color: black;
     
 
 }
+
+@media screen and (max-width: 1200px) {
+    .Sidebars{
+        width: 55%;
+    }
+    span{
+     display: none;
+   }
+   .logo{
+     display: none;
+   }
+ }
+
+ 
+@media screen and (max-width: 768px) {
+    .Sidebars{
+      position: fixed;
+      z-index: 9;
+     
+      width: 12%;
+      padding-right: 1rem;
+      height: 100%;
+    }
+    .menuItemsl>span{
+      display: block;
+    }
+    
+    .menul .menuItemsl:last-child {
+      position: relative;
+     
+    }
+    .menul .menuItemsl:last-child span{
+        display: none;
+      }
+  }

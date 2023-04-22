@@ -114,12 +114,17 @@ function Content() {
     }
     
   }
+  const handleCancel = () => {
+    setTitle('');
+    setImagePre(null);
+    setVideoPre(null);
+  };
   return (
     <div>
       <div className='contentcontainer'>
         <div style={{ display: "flex", alignItems: "center", padding: 10 }}>
           <img src={`${user?.other?.profile}`} className="profileImage" alt="" />
-          <input type="text" className='contentpost' placeholder='write your thoughts' onChange={(e)=>setTitle(e.target.value)}/>
+          <input type="text" className='contentpost' placeholder='write your thoughts'value={title} onChange={(e)=>setTitle(e.target.value)}/>
         </div>
         <div style={{  marginLeft: "10px" }}>
           {
@@ -142,8 +147,12 @@ function Content() {
             <input type="file" name='file2' id='file2' style={{display:'none'}} accept="video/*" onChange={(e)=>[setFile2(e.target.files[0]),setVideoPre(URL.createObjectURL(e.target.files[0]))]}/>
             </label>
             </div>
+            <div>
+          {title|| imagePre || videoPre ?  <button style={{height:"27px" ,marginBottom:"5px",paddingLeft:"20px" , paddingRight:"20px" , border:"none" , backgroundColor:"black" , color:"white" , borderRadius:"5px" , cursor:"pointer",marginTop:"50px",marginRight:"5px"}} onClick={handleCancel}>cancel</button> : ""}
           <button style={{height:"27px" ,marginBottom:"5px",paddingLeft:"20px" , paddingRight:"20px" , border:"none" , backgroundColor:"black" , color:"white" , borderRadius:"5px" , cursor:"pointer",marginTop:"50px",marginRight:"10px"}} onClick={handlePost}>Post</button>
          
+            </div>
+          
           </div>
         </div>
 

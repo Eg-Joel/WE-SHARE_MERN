@@ -5,7 +5,7 @@ import profileImage from "../Images/Profile.png"
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../ReduxContainer/useReducer'
-import axios from 'axios'
+import axios from '../../utils/axios'
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 function Navbar() {
@@ -22,7 +22,7 @@ function Navbar() {
   }, [userDetails]);
   const profile= user?.other?.profile
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/user/get/users`)
+    axios.get(`user/get/users`)
       .then(({ data }) => setUserData(data))
       .catch((error) => console.log(error))
   }, [])

@@ -50,6 +50,7 @@ function ChatItem({ chat }) {
                 />
             </ListItemAvatar>
             <ListItemText primary={user?.username} />
+            <ListItemText primary={chat._id}/>
         </ListItemButton>
         </ListItem>
     </Link>

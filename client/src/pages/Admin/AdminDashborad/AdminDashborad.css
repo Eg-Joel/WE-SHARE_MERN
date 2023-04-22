@@ -19,6 +19,19 @@
     border-radius: 2rem;
     background-color: var(--glass);
     overflow: hidden;
-    grid-template-columns: 11rem auto 20rem;
+    grid-template-columns: 17rem auto ;
     gap: 10px;
 }
+
+@media screen and (max-width: 1200px) {
+    .DashGlass{
+      grid-template-columns: 10% 50% ;
+      overflow-y: scroll;
+    } 
+  }
+
+  @media screen and (max-width: 768px) {
+    .DashGlass{
+      grid-template-columns: 1fr;
+    } 
+  }

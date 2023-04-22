@@ -6,7 +6,7 @@ import Likedbtn from "../Images/setLike.png"
 import commentBtn from "../Images/speech-bubble.png"
 import optionIcon from "../Images/more.png"
 import ReactTimeAgo from 'react-time-ago'
-import axios from 'axios'
+import axios from '../../utils/axios'
 import { useSelector } from 'react-redux'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -36,7 +36,7 @@ function Post({details}) {
    const getuser = async()=>{
    
     try {
-      const res = await axios.get(`http://localhost:5000/api/user/post/user/details/${details.user}`)
+      const res = await axios.get(`user/post/user/details/${details.user}`)
       setUser(res.data)
       
     } catch (error) {
@@ -45,11 +45,11 @@ function Post({details}) {
    }
    
    getuser()
-  }, [])
+  }, [details.user])
  
   // console.log("b4 post post");
   // console.log(post);
-  
+ 
   const handleLike = async() => {
     if (Like == Likebtn) {
       await fetch(`http://localhost:5000/api/post/${details._id}/like`,{method:"PUT",headers:{'Content-Type':"application/Json",token:accesstoken}})

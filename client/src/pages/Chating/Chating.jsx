@@ -11,16 +11,16 @@ function Chating() {
     <Navbar/>
     <div className='componentContainers'>
       <div className='subCop'>
-        <div>
+        
         <Leftbar/>
-        </div>
+     
      
       <div className='chatboxsss'>
       <ChatBox/>
       </div>
      
       <div className='RightBars'>
-      <Rightbar/>
+      <Rightbar value={true}/> 
       </div>
       
       </div>

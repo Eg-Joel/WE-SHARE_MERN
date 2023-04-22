@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "../../utils/axios"
 import { loginStart,loginSucces,loginFailure,logout } from "./useReducer"
 import { AdminloginStart,AdminloginSucces,AdminloginFailure,Adminlogout } from "./adminReducer"
 
@@ -8,7 +8,7 @@ export const login = async(dispatch, user)=>{
     dispatch(loginStart())
     
     try {
-        const res = await axios.post('http://localhost:5000/api/user/login',user)
+        const res = await axios.post('user/login',user)
     console.log(res,"api");
         dispatch(loginSucces(res.data))
        
@@ -28,7 +28,7 @@ export const Adminlogin = async (dispatch, admin) => {
     dispatch(AdminloginStart());
     try {
      
-      const res = await axios.post("http://localhost:5000/api/admin/admin-login", admin);
+      const res = await axios.post("admin/admin-login", admin);
       
       if (res.data.other.isAdmin) {
      
@@ -45,7 +45,7 @@ export const Adminlogin = async (dispatch, admin) => {
 export const VerifyEmail = async(dispatch, user)=>{
     dispatch(loginStart())
     try {
-        const res = await axios.post('http://localhost:5000/api/user/verify/email',user)
+        const res = await axios.post('user/verify/email',user)
         dispatch(loginSucces(res.data))
         
     } catch (error) {
@@ -56,7 +56,7 @@ export const VerifyEmail = async(dispatch, user)=>{
 export const signup = async(dispatch, user)=>{
     dispatch(loginStart())
     try {
-        const res = await axios.post('http://localhost:5000/api/user/create/user',user)
+        const res = await axios.post('user/create/user',user)
         dispatch(loginSucces(res.data))
         
     } catch (error) {

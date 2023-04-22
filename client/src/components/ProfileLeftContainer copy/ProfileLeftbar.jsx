@@ -213,12 +213,12 @@ const handleUnFollow = async (friendId)=>{
 
     const { data } = await axios.post('conversation/con', { friendId }, config)
 
-    const member = data.members;
-    navigate(`/chat/${data._id}/${member[1]}`);
+    navigate(`/chat/${data._id}/${friendId}`);
 
   }
 
 
+  
   return (
     <div className='ProfileLeftbar'>
       <div className='notificationContainers'>
@@ -227,18 +227,17 @@ const handleUnFollow = async (friendId)=>{
           <img src={`${profile}`} alt="" className='ProfilePageimage' onClick={handleEditProfile} />
           <Modal isOpen={modalProfile} onRequestClose={() => setModalPrfile(false)} style={customStyles}>
             {
-
-              <img src={imag === null ? `${profile}` : `${imag}`} alt="" style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "50%" }} />
-
+             <label htmlFor="file"  style={{ cursor: "pointer", }} >
+              <img src={imag === null ? `${profile}` : `${imag}`} alt="" style={{ width: "200px", height: "200px", objectFit: "cover",}} />
+              </label>
             }
-
-
             <input type="file" name="file" id="file" className='inputText' style={{ display: "none" }} onChange={(e) => [setFiles(e.target.files[0]), setImag(URL.createObjectURL(e.target.files[0]))]} />
-            <label htmlFor="file" className='inputText' style={{ cursor: "pointer" }} >
-              <AddPhotoAlternateIcon />
-            </label>
-            <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} onClick={handleProfileUpdate}>Update</button>
-            <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} onClick={() => setModalPrfile(false)}>cancel</button>
+        
+            <Stack direction="row" spacing={2} className='mt-3'>
+            <Button variant="outlined" color="error" onClick={() => setModalPrfile(false)}>Cancel </Button>
+            <Button variant="contained" color="success" onClick={handleProfileUpdate} >Update </Button>
+             </Stack>
+            
           </Modal>
           <div>
             <p style={{ marginLeft: 6, marginTop: 25, color: "black", textAlign: "start" }}>{username}</p>

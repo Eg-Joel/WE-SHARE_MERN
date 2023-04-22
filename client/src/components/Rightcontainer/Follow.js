@@ -9,25 +9,29 @@ import axios from '../../utils/axios'
 import { setUserss } from '../ReduxContainer/useReducer';
 
 function Follow({ userdetails }) {
+  const dispatch = useDispatch();
   const userDetails = useSelector((state)=>state.user);
   let user = userDetails?.user
   let id = user?.other?._id;
-  const dispatch = useDispatch();
+  
   const [follow, setFollow] = useState(addfriends)
   const accesstoken = user.accessToken
   const config = {
     headers: { token: ` ${accesstoken}` }
   }
  
-  const handleFollow = async (e) => {
+  const handleFollow = async (friendId) => {
  
-    const res= await axios.put(`user/follow/${userdetails._id}`,{user:`${id}`},config)
+ 
+    const res= await axios.put(`user/follow`,{friendId},config)
+    
     setFollow(userToFollow)
-    const userDet = res.data
+ 
+    const userDet = res.data.updatedUser
+    
 
     dispatch(setUserss( userDet ))
- console.log(res.data.following,"lol");
- console.log(user.other.following,"user");
+
  } 
   return (
     

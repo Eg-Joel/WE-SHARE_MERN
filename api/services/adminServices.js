@@ -70,8 +70,8 @@ module.exports = {
                             {
                                 $project:{
                                     username:1,
-                                    fullname:1,
-                                    avatar:1,
+                                   
+                                    profile:1,
                                 }
                             }
                         ],
@@ -98,8 +98,8 @@ module.exports = {
                             {
                                 $project:{
                                     username:1,
-                                    fullname:1,
-                                    avatar:1,
+                                    
+                                    profile:1,
                                 }
                             }
                         ],
@@ -112,7 +112,7 @@ module.exports = {
                 },
                 { 
                     $match:{
-                        'userDetail.username':{$regex:name}
+                        'userDetail.username':{$regex:username}
                     }
                  },
                 {

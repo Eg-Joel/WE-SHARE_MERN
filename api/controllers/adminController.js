@@ -98,6 +98,7 @@ module.exports = {
             const currPosts = listSize * (pageNumber - 1)
             const pageCount = Math.ceil(userCount / listSize);
             const posts= await adminServies.getPaginatedPosts(listSize,currPosts)
+           
             res.json({status:true , data:{pageCount,posts}})
         } catch (error) {
             res.json({status:false , message:'internal Server error',error})

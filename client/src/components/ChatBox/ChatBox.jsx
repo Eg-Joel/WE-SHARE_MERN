@@ -10,10 +10,10 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import React, { useEffect, useRef, useState} from 'react';
 import { useParams } from "react-router-dom";
 import {  useSelector } from "react-redux";
-import io from 'socket.io-client';
+
 import axios from "../../utils/axios"
 import Message from "../Messaga/Message";
-
+import socket from "../../Socket/Socket"
 
 function ChatBox() {
 
@@ -27,17 +27,16 @@ function ChatBox() {
     let user = userDetails.user
     let UserId = user?.other?._id
     const scrollRef = useRef();
-    const socket = useRef()
+    
     const accesstoken = user?.accessToken
     const token = accesstoken
     const config = {
       headers: { token: ` ${token}` }
     }
    
-   console.log(id,friendId,"erer");
     useEffect(()=>{
-        socket.current = io("ws://localhost:8900")
-        socket.current.on("getMessage",data =>{
+        
+        socket.on("getMessage",data =>{
          
             setArrivalMessage({
              sender: data?.senderId,
@@ -55,8 +54,8 @@ function ChatBox() {
     
     
       useEffect(()=>{
-        socket.current.emit("addUser",UserId)
-        socket.current.on("getUsers",(users)=>{
+        socket.emit("addUser",UserId)
+        socket.on("getUsers",(users)=>{
         
         
         })
@@ -76,7 +75,7 @@ function ChatBox() {
   }, [])
 
   useEffect(()=>{
-        console.log(friendId);
+       
     const getUser = async ()=>{
       try {
         const res = await axios.get(`user/users/${friendId}`,config)
@@ -98,7 +97,7 @@ function ChatBox() {
         };
        
     
-          socket.current.emit("sendMessage", {
+          socket.emit("sendMessage", {
             senderId: UserId,
             receiverId:friendId,
             text: newMessage,
@@ -115,12 +114,15 @@ function ChatBox() {
       useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: "smooth" });
       }, [messages]);
+      // console.log(friend,"us");
   return (
-    <Box flex={4} sx={{marginLeft:"1rem"}}>
+    <Box flex={4} sx={{marginLeft:"3rem"}}>
             <Card sx={{
                 boxShadow: `-1px 6px 5px 3px rgba(0,0,0,0.25)`,
-                height: "90vh",
-                width: "99%",
+                height: "88vh",
+                width: "90%",
+                marginTop:"10px",
+                borderRadius: "20px"
             }} >
                 <CardHeader
                     
@@ -142,6 +144,7 @@ function ChatBox() {
                     backgroundColor: "#f0f5f5",
                     height: "calc(100% - 8rem)",
                     paddingLeft: "1rem",
+                    paddingRight: "1rem",
                     overflowX: "scroll",
                     "&::-webkit-scrollbar": {
                         display: "none"

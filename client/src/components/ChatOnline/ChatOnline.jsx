@@ -52,8 +52,7 @@ function ChatOnline({onlineUsers,currentUser}) {
       const friendId = user._id
       const { data } = await axios.post('conversation/con', { friendId }, config)
 
-      const member = data.members;
-      navigate(`/chat/${data._id}/${member[1]}`);
+      navigate(`/chat/${data._id}/${friendId}`);
       
       
     } catch (error) {

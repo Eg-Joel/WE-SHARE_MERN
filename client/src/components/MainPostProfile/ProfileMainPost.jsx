@@ -4,7 +4,7 @@ import Post from '../ProfilePostContainer/Post'
 import "./Profilemainpost.css"
 import Coverimage from "../Images/Profile.png"
 import { useEffect } from 'react'
-import axios from 'axios'
+import axios from '../../utils/axios'
 import { useLocation } from 'react-router-dom'
 function ProfileMainPost() {
   const [post ,setPost] =  useState([])
@@ -16,14 +16,14 @@ function ProfileMainPost() {
     const getPost = async ()=>{
      
       try {
-        const res = await axios.get(`http://localhost:5000/api/post/get/post/${id}`)
+        const res = await axios.get(`post/get/post/${id}`)
         setPost(res.data)
       } catch (error) {
         console.log("error ocured");
       }
     }
     getPost()
-  }, [])
+  }, [id])
   
   return (
     <div className='mainpost'>

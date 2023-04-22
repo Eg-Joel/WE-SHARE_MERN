@@ -302,7 +302,8 @@ exports.reportPost=async (req, res) => {
       const post = await Post.findById(req.params.id);
     
       req.body.userId = req.user.id
-      req.body.name = req.user?.email
+      req.body.name = req.user?.username
+
       req.body.postId = post._id
       req.body.post=post?.image
       req.body.desc=post.desc

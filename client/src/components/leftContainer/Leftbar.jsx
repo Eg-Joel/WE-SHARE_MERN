@@ -39,7 +39,7 @@ function Leftbar() {
       },
       {
         icon: AccountBoxIcon,
-        heading: 'Prrofile',
+        heading: 'Profile',
         path: `/profile/${id}`
       },
       {
@@ -52,28 +52,28 @@ function Leftbar() {
     
   ];
     return (
-        <div className='Sidebar'>
-            
+        <div className='Sidebars'>
+
 
                 
-        <div className="menu">
+             <div className="menul">
       
             {LeftbarData.map((item,index)=>{
                 const isActive = location.pathname === item.path || selectedPath === item.path;
                 return (
-                    <div className={`menuItems ${isActive ? 'active' : ''}`}
+                    <div className={`menuItemsl ${isActive ? 'active' : ''}`}
                     key={index}
                     onClick={()=>setSelectedPath(item.path)}
                     ><Link to={item.path}  >
                         <item.icon/>
-                        <span>
+                        <span style={{marginLeft:"15px"}}>
                             {item.heading}
                         </span>
                         </Link>
                     </div>
                 )
             })}
-            <div className="menuItems">
+            <div className="menuItemsl">
                 <UilSignOutAlt />
                 <span onClick={handleLogout}>Logout</span>
             </div>

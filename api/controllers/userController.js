@@ -232,8 +232,9 @@ exports.following = async(req,res)=>{
     try {
         
         const id = req.user.id
+        
         const friendId = req.body.friendId
-     
+   
         const friend = await  User.findById(friendId)
         if (!friend) {
             return res.status(400).json({ msg: "User does not exist" })
@@ -473,7 +474,7 @@ exports.getAllUsers = async(req,res)=>{
         const user = await User.find({},{password:0})
         res.status(200).json(user)
     } catch (error) {
-        res.status(500).json(err)
+        res.status(500).json(error)
     }
 }
 exports.getUsered =async(req,res)=>{

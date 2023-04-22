@@ -1,7 +1,7 @@
 import React from 'react'
 import './MainDash.css'
 import  { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "../../../utils/axios"
 import { useSelector } from 'react-redux';
 
 
@@ -25,7 +25,7 @@ function UserComponent() {
         const getUsers = async () => {
             try {
                 
-                const response =await axios.get(`http://localhost:5000/api/admin/users/${pageNumber}`,config)
+                const response =await axios.get(`admin/users/${pageNumber}`,config)
                
                 const res=response.data.data
                 
@@ -44,7 +44,7 @@ function UserComponent() {
             setUserSearch([])
         }else{
             try {
-            const searchUsers =await axios.get(`http://localhost:5000/api/admin/searchUsers/${searchInput}`,config)
+            const searchUsers =await axios.get(`admin/searchUsers/${searchInput}`,config)
             const searc=searchUsers.data
             setUserSearch(searc.data)
         }catch (error) {
@@ -67,7 +67,7 @@ function UserComponent() {
 
         try {
             
-            const res = await axios.patch(`http://localhost:5000/api/admin/banUser`,{id},config)
+            const res = await axios.patch(`admin/banUser`,{id},config)
             
             if (res.data.status) {
               const updatedUsers = users.map((user) => {
@@ -84,7 +84,7 @@ function UserComponent() {
       }
     const unBan = async(id)=>{
         try {
-            const res = await axios.patch(`http://localhost:5000/api/admin/unBanUser`,{id},config)
+            const res = await axios.patch(`admin/unBanUser`,{id},config)
             if (res.data.status) {
               const updatedUsers = users.map((user) => {
                 if (user._id === id) {

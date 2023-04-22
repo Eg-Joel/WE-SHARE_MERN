@@ -23,6 +23,9 @@ import SendIcon from '@mui/icons-material/Send';
 import Swal from 'sweetalert2'
 import axios from '../../utils/axios'
 import * as timeago from 'timeago.js';
+import Stack from '@mui/material/Stack';
+
+
 const customStyles = {
   content: {
     top: '50%',
@@ -43,7 +46,7 @@ function Post({ post }) {
   const menuRef = useRef()
   const imgRef = useRef()
   // const queryClient = useQueryClient();
- 
+
   window.addEventListener("click", (e) => {
     if (e.target !== menuRef.current && e.target !== imgRef.current) {
       setOpen(false)
@@ -74,19 +77,19 @@ function Post({ post }) {
   const [modelIsOpen, setModelIsOpen] = useState(false)
   const [modelReportOpen, setModelReportOpen] = useState(false)
   const [newTitle, setNewTitle] = useState("")
-  const [posts,setPosts]= useState(post)
+  const [posts, setPosts] = useState(post)
   const [report, setReport] = useState('other')
   const [err, setErr] = useState(null)
   const [desc, setDesc] = useState(null)
   const [isDeleted, setIsDeleted] = useState(false);
   const sortedComments = [...Comments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
- 
+
   let subtitle;
-  const token =accesstoken
- 
+  const token = accesstoken
+
   const config = {
     headers: { token: ` ${token}` }
-}
+  }
   // console.log(post);
 
   const handleLike = async () => {
@@ -103,28 +106,21 @@ function Post({ post }) {
     }
   }
 
-  const [likedUsers,SetLikedUsers] = useState([])
-    useEffect(() => {
-      const getLikedUsres = async()=>{
-        try {
-            const res =await axios.get(`post/likedUsers/${post._id}`,config)
-            SetLikedUsers(res.data)
-        } catch (error) {
-            
-        }
-      }
-      getLikedUsres()
-    }, [])
-  // const addCommeent = async() => { 
-  //   const comment = {
-  //     "postid": `${post._id}`,
-  //     "username": `${currentUser.other.username}`,
-  //     "comment": `${Commentadded}`,
-  //     "profile":`${currentUser.other?.profile}`
+  const [likedUsers, SetLikedUsers] = useState([])
+  useEffect(() => {
+    const getLikedUsres = async () => {
+      try {
+        const res = await axios.get(`post/likedUsers/${post._id}`, config)
+        SetLikedUsers(res.data)
+      } catch (error) {
 
-  //   }
+      }
+    }
+    getLikedUsres()
+  }, [])
+
   const addCommeent = async () => {
-   
+
     if (Commentadded.trim() !== '') {
       const comment = {
         "postid": `${post._id}`,
@@ -140,12 +136,12 @@ function Post({ post }) {
       // console.log(currentUser.other?.profile,"jjij");
 
       await fetch(`http://localhost:5000/api/post/comment/post`, { method: "PUT", headers: { 'Content-Type': 'application/Json', token: accesstoken }, body: JSON.stringify(comment) })
-      
-     
+
+
       SetComments(updatedComments);
 
       toast.success('comment added')
-     
+
     } else {
       toast.warning('wirte any thing')
     }
@@ -166,11 +162,11 @@ function Post({ post }) {
     }
   }
 
-  const handleLikeShow= ()=>{
-    if(shows === false){
+  const handleLikeShow = () => {
+    if (shows === false) {
       setShows(true)
 
-    }else{
+    } else {
       setShows(false)
     }
   }
@@ -179,7 +175,7 @@ function Post({ post }) {
   }
   const deleteMutation = useMutation(
 
-    (postId) => 
+    (postId) =>
       fetch(`http://localhost:5000/api/post/deletepost/${postId}`, { method: "delete", headers: { 'Content-Type': 'application/Json', token: accesstoken } }),
     {
       onSuccess: () => {
@@ -203,7 +199,7 @@ function Post({ post }) {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteMutation.mutate(post._id); 
+        deleteMutation.mutate(post._id);
       }
     })
 
@@ -229,19 +225,19 @@ function Post({ post }) {
       setNewTitle(updatedPost.title)
       setModelIsOpen(false)
 
-    toast.success('Post Edited')
+      toast.success('Post Edited')
     } catch (error) {
       console.error(error)
     }
-    
+
 
   }
   const handleReports = () => {
     // e.preventDefault()
-    if (report=="other"&&desc.trim().length!==0&&desc!=null) {
-      console.log("Entry test");
-      axios.put(`post/${post._id}/report`, { reason:desc },config).then((res) => {
-        console.log(res);
+    if (report == "other" && desc.trim().length !== 0 && desc != null) {
+
+      axios.put(`post/${post._id}/report`, { reason: desc }, config).then((res) => {
+
         Swal.fire({
           title: 'Reported!',
           text: 'Thanks for reporting',
@@ -252,11 +248,11 @@ function Post({ post }) {
         setDesc("")
         // setMenuOpen(false)
         setErr(null)
-      }).catch((err)=>{
+      }).catch((err) => {
         setErr(err.response.data)
       })
-    } else if(report!=="other") {
-      axios.put(`post/${post._id}/report`, { reason:report },config).then((res) => {
+    } else if (report !== "other") {
+      axios.put(`post/${post._id}/report`, { reason: report }, config).then((res) => {
         Swal.fire({
           title: 'Reported!',
           text: 'Thanks for reporting',
@@ -267,41 +263,41 @@ function Post({ post }) {
         setDesc("")
         // setMenuOpen(false)
         setErr(false)
-      }).catch((err)=>{
+      }).catch((err) => {
         setErr(err.response.data)
       })
 
     }
-    else{
+    else {
       setErr("Please specify reason")
     }
   }
   if (isDeleted) {
     return null;
   }
-const handleDeleteComment = (_id)=>{
-  Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  }).then((result) => {
-    if (result.isConfirmed) {
+  const handleDeleteComment = (_id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
 
-      axios.put(`post/${post._id}/deleteComment`,{_id},config).then((res)=>{
-        console.log(res,"lo");
-        toast.success('Post Deleted')
-        const newComments = Comments.filter(comment => comment._id !== _id);
-        SetComments(newComments);
-      }).catch((err)=>{console.log(err);})
-    }
-  })
+        axios.put(`post/${post._id}/deleteComment`, { _id }, config).then((res) => {
+          console.log(res, "lo");
+          toast.success('Post Deleted')
+          const newComments = Comments.filter(comment => comment._id !== _id);
+          SetComments(newComments);
+        }).catch((err) => { console.log(err); })
+      }
+    })
 
-}
-// console.log(Comments);
+  }
+  // console.log(Comments);
   return (
     <div className='postContainer'>
       <div className='subPostContainer'>
@@ -312,9 +308,9 @@ const handleDeleteComment = (_id)=>{
           </div>
 
           <div className='optt'>
-            <p style={{ marginLeft: "5px", textAlign: "start",marginTop:"3px",marginBottom:"0"  }}>{user.username}</p>
+            <p style={{ marginLeft: "5px", textAlign: "start", marginTop: "3px", marginBottom: "0" }}>{user.username}</p>
 
-            <p style={{ marginLeft: "5px", textAlign: "start", color: "gray",marginBottom:"0" }}><ReactTimeAgo date={Date.parse(post.createdAt)} locale="en-US" /> </p>
+            <p style={{ marginLeft: "5px", textAlign: "start", color: "gray", marginBottom: "0" }}><ReactTimeAgo date={Date.parse(post.createdAt)} locale="en-US" /> </p>
 
           </div>
 
@@ -344,7 +340,7 @@ const handleDeleteComment = (_id)=>{
                         <li className={userId == user._id ? 'lidrop' : "linotdrop"} onClick={hanldeEditOpen}> Edit</li>
                         <li className={userId == user._id ? 'lidrop' : "linotdrop"} onClick={hanldeDeleteOpen}>Delete</li>
                         <li className={userId == user._id ? 'linotdrop' : "lidrop"} onClick={hanldeReportOpen}>Report</li>
-                         </div>
+                      </div>
                     }
                   </ul>
 
@@ -357,9 +353,12 @@ const handleDeleteComment = (_id)=>{
         <div>
 
           <Modal isOpen={modelIsOpen} onRequestClose={() => setModelIsOpen(false)} style={customStyles}>
-            <input type="text" defaultValue={posts.title} onChange={(e) => setNewTitle(e.target.value)} />
-            <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} onClick={handleEdit} >Update</button>
-            <button style={{ height: "27px", paddingTop: 6, paddingBottom: 6, border: "none", backgroundColor: "black", color: "white", borderRadius: "5px", cursor: "pointer" }} onClick={() => setModelIsOpen(false)}>cancel</button>
+            <input type="text" defaultValue={posts.title} onChange={(e) => setNewTitle(e.target.value)} style={{ display: "block" }} />
+            <Stack direction="row" spacing={2} className='mt-3'>
+              <Button variant="outlined" color="error" onClick={() => setModelIsOpen(false)}>Cancel </Button>
+              <Button variant="contained" color="success" onClick={handleEdit} >Update </Button>
+
+            </Stack>
           </Modal>
 
           <Modal
@@ -399,7 +398,7 @@ const handleDeleteComment = (_id)=>{
 
 
         <div style={{ display: "flex" }}>
-          <div style={{ display: 'flex', marginLeft: '10px', marginTop:"5px",  }}>
+          <div style={{ display: 'flex', marginLeft: '10px', marginTop: "5px", }}>
             <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
 
               <img src={`${Like}`} className="LikeComments" onClick={handleLike} alt="" />
@@ -416,20 +415,20 @@ const handleDeleteComment = (_id)=>{
           {/*{post.Comments.length} */}
         </div>
         {
-          shows === true ? 
-          <div style={{ padding: "10px" }}>
-            
-            {likedUsers.map((items, index) => (
-              <div style={{ alignItems: "center" }} key={index}>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <img src={`${items.profile}`} className="postProfile" alt="" />
-                  <p style={{ marginLeft: "6px", marginTop: 7, fontSize: 18 }}> {items.username}</p>
-                 
-                 
+          shows === true ?
+            <div style={{ padding: "10px" }}>
+
+              {likedUsers.map((items, index) => (
+                <div style={{ alignItems: "center" }} key={index}>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <img src={`${items.profile}`} className="postProfile" alt="" />
+                    <p style={{ marginLeft: "6px", marginTop: 7, fontSize: 18 }}> {items.username}</p>
+
+
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div> : ""
+              ))}
+            </div> : ""
         }
         {Show === true ?
           <div style={{ padding: "10px" }}>
@@ -446,14 +445,14 @@ const handleDeleteComment = (_id)=>{
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <img src={`${items.profile}`} className="postProfile" alt="" />
                   <p style={{ marginLeft: "6px", marginTop: 7, fontSize: 18 }}> {items.username}</p>
-                 
-                  <p style={{ marginLeft: "5px", textAlign: "start", color: "gray" ,marginTop: -7, fontSize: 12 ,marginBottom:"0" }}>{timeago.format(items?.createdAt)} </p>
+
+                  <p style={{ marginLeft: "5px", textAlign: "start", color: "gray", marginTop: -7, fontSize: 12, marginBottom: "0" }}>{timeago.format(items?.createdAt)} </p>
                 </div>
-               
+
 
                 <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16 }}>{items.comment}</p>
 
-           { userId === items.user ?  <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16, color: "#aaa", fontSize: 12,cursor:"pointer" }} onClick={()=>{handleDeleteComment(items._id)}}>Delete</p>: ""}
+                {userId === items.user ? <p style={{ display: "flex", marginLeft: "56px", alignItems: "start", marginTop: -16, color: "#aaa", fontSize: 12, cursor: "pointer" }} onClick={() => { handleDeleteComment(items._id) }}>Delete</p> : ""}
               </div>
             ))}
           </div> : ""

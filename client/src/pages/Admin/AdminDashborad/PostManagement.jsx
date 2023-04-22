@@ -6,8 +6,12 @@ function PostManagement() {
   return (
     <div className='Dashborad'>
     <div className='DashGlass'>
+    
       <Sidebar/>
-     <PostComponent/>
+   
+   <PostComponent/>
+  
+     
     </div>
   </div>
   )

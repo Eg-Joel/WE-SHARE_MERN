@@ -1,7 +1,7 @@
 import React from 'react'
 import './MainDash.css'
 import  { useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "../../../utils/axios"
 import { useSelector } from 'react-redux';
 import { DataGrid } from "@mui/x-data-grid";
 import Swal from 'sweetalert2'
@@ -39,11 +39,7 @@ function ReportCom() {
     width: 105,
   }
   ,
-  {
-    field: "desc",
-    headerName: "Bio/Desc",
-    width: 145,
-  }]
+  ]
 
 
 
@@ -52,7 +48,7 @@ function ReportCom() {
     const getReports = async () => {
         try {
             
-            const response =await axios.get(`http://localhost:5000/api/post/reports/1`,config)
+            const response =await axios.get(`post/reports/1`,config)
           //  console.log(response);
             const res=response.data
             
@@ -78,7 +74,7 @@ function ReportCom() {
           confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            axios.delete(`http://localhost:5000/api/post/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
+            axios.delete(`post/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
                console.log(response,"op");
                 if (response.data) {
                     console.log(response,"pp");
@@ -105,7 +101,7 @@ function ReportCom() {
           confirmButtonText: 'Yes, block'
         }).then((result) => {
           if (result.isConfirmed) {
-            axios.delete(`http://localhost:5000/api/user/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
+            axios.delete(`user/${postId}/rejectReport?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -137,7 +133,7 @@ function ReportCom() {
       }).then((result) => {
         if (result.isConfirmed) {
           if (type=="post") {
-            axios.delete(`http://localhost:5000/api/post//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
+            axios.delete(`post//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -152,7 +148,7 @@ function ReportCom() {
             })
           }else{ 
             console.log("not posts",type);
-            axios.delete(`http://localhost:5000/api/user//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
+            axios.delete(`user//${postId}/report?id=${item}&name=${email}`,config).then((response) => {
               //  console.log(response);
                 if (response.data) {
                     // console.log(response);
@@ -176,11 +172,12 @@ function ReportCom() {
           field: "image",
           headerName: "Image",
           width: 130,
+       
           renderCell: (params) => {
     
             // console.log(params,"params apps");
             return (
-             <img className="image" src={params.row.post} style={{ objectFit: "cover"}}  alt="no image" />
+             <img className="image" src={params.row.post} style={{width: "100%", height: "100%", objectFit: "cover"}}  alt="no image" />
             );
           },
         }

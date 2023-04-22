@@ -2,23 +2,40 @@ import React, { useState } from 'react'
 import './Sidebar.css'
 import logo from '../../Images/logonobac.png'
 import { SidebarData } from '../../../Data/Data'
-import {UilSignOutAlt} from '@iconscout/react-unicons'
+import {UilSignOutAlt,UilBars} from '@iconscout/react-unicons'
 import { useDispatch} from 'react-redux'
 import { Adminlogout } from '../../ReduxContainer/adminReducer'
 import { Link,useLocation  } from 'react-router-dom'
+import { motion } from "framer-motion"
 const Sidebar = () => {
     // const adminDetails = useSelector((state)=>state.admin);
     const [selected, SetSelected] =useState(0)
     const [selectedPath, setSelectedPath] = useState('');
 
+    const [expanded,setExpaned] = useState(true)
     const dispatch = useDispatch();
     const handleLogout = ()=>{
       dispatch(Adminlogout())
       setSelectedPath('');
     }
     const location = useLocation();
+    const sidebarVariants = {
+        true: {
+          left : '0'
+        },
+        false:{
+          left : '-60%'
+        }
+      }
   return (
-    <div className='Sidebar'>
+    <>
+    <div className="bars" style={expanded?{left: '60%'}:{left: '5%'}} onClick={()=>setExpaned(!expanded)}>
+            <UilBars/>
+        </div>
+    <motion.div className='Sidebar'
+    variants={sidebarVariants}
+    animate={window.innerWidth<=768?`${expanded}`:''}>
+        
         <div className="logo">
             <img src={logo} alt="" />
             <span>
@@ -50,7 +67,8 @@ const Sidebar = () => {
             </div>
 
         </div>
-    </div>
+    </motion.div>
+    </>
   )
 }
 

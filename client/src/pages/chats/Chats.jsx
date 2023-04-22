@@ -11,9 +11,9 @@ function Chats() {
     <Navbar/>
     <div className='componentContainers'>
       <div className='subCop'>
-      <div>
+      
         <Leftbar/>
-        </div>
+       
       
         <div className='chatboxsss'>
         <Chatlists/>

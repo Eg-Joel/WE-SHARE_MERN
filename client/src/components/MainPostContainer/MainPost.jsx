@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from '../../utils/axios'
 import React from 'react'
 import { useState } from 'react'
 import { useEffect } from 'react'
@@ -25,7 +25,7 @@ function MainPost() {
    const getPost = async ()=>{
     try {
       
-      const res = await axios.get(`http://localhost:5000/api/user/followerpost/${id}?page=${page}`,{
+      const res = await axios.get(`user/followerpost/${id}?page=${page}`,{
       headers:{
         token:accesstoken
       },
